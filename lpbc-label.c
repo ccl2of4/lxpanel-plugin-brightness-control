@@ -5,8 +5,8 @@
 GtkWidget *
 lpbc_label_new (void)
 {
-  GtkWidget *label = gtk_label_new(NULL);
-  gtk_widget_show(label);
+  GtkWidget *label = gtk_label_new (NULL);
+  gtk_widget_show (label);
   return label;
 }
 
@@ -15,5 +15,5 @@ lpbc_label_set_brightness (GtkWidget *label, long brightness)
 {
   char brightness_str[10] = {'\0'};
   snprintf(brightness_str, sizeof(brightness_str), "%ld", brightness);
-  gtk_label_set_text(GTK_LABEL(label), brightness_str);
+  gtk_label_set_text (GTK_LABEL (label), brightness_str);
 }
