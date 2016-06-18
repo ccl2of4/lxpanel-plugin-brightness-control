@@ -43,20 +43,37 @@ lpbc_controller_init_module (void)
 }
 
 static void
+lpbc_controller_begin_polling (LPBCController *controller)
+{
+  if (!controller->timeout_id) {
+    controller->timeout_id = g_timeout_add (1000, lpbc_controller_on_update, controller);
+  }
+}
+
+static void
+lpbc_controller_end_polling (LPBCController *controller)
+{
+  if (controller->timeout_id) {
+    g_source_remove (controller->timeout_id);
+    controller->timeout_id = 0;
+  }
+}
+
+static void
 lpbc_controller_destroy (gpointer data)
 {
   LPBCController * controller = data;
-  lpbc_keybinder_unbind ();
-  g_source_remove (controller->timeout_id);
+  lpbc_controller_end_polling (controller);
   g_free (controller);
+  lpbc_keybinder_unbind ();
 }
 
 static void
 lpbc_controller_init (LPBCController *controller)
 {
   lpbc_keybinder_bind ();
-  controller->timeout_id = g_timeout_add (1000, lpbc_controller_on_update, controller);
   lpbc_controller_update (controller);
+  lpbc_controller_begin_polling (controller);
 }
 
 static void
@@ -100,6 +117,38 @@ lpbc_controller_get_widget (LPBCController *controller)
   return controller->event_box;
 }
 
+static gboolean
+lpbc_controller_on_scale_change_value (GtkRange     *range,
+                                        GtkScrollType scroll,
+                                        gdouble       value,
+                                        gpointer      user_data)
+{
+  LPBCController *controller = user_data;
+  lpbc_brightness_set (value, true);
+  lpbc_label_set_brightness (controller->label, value);
+  return FALSE;
+}
+
+static gboolean
+lpbc_controller_on_scale_button_press (GtkWidget *widget,
+                                       GdkEvent  *event,
+                                       gpointer   user_data)
+{
+  LPBCController *controller = user_data;
+  lpbc_controller_end_polling (controller);
+  return FALSE;
+}
+
+static gboolean
+lpbc_controller_on_scale_button_release (GtkWidget *widget,
+                                         GdkEvent  *event,
+                                         gpointer   user_data)
+{
+  LPBCController *controller = user_data;
+  lpbc_controller_begin_polling (controller);
+  return FALSE;
+}
+
 static void
 lpbc_controller_create_popup (LPBCController *controller)
 {
@@ -107,6 +156,9 @@ lpbc_controller_create_popup (LPBCController *controller)
   GtkWidget *scale = lpbc_scale_new ();
   controller->popup = popup;
   controller->scale = scale;
+  g_signal_connect (controller->scale, "change-value", G_CALLBACK (lpbc_controller_on_scale_change_value), controller);
+  g_signal_connect (controller->scale, "button-press-event", G_CALLBACK (lpbc_controller_on_scale_button_press), controller);
+  g_signal_connect (controller->scale, "button-release-event", G_CALLBACK (lpbc_controller_on_scale_button_release), controller);
   gtk_container_add (GTK_CONTAINER (popup), scale);
   lxpanel_plugin_adjust_popup_position (GTK_WIDGET (popup), controller->event_box);
   lpbc_controller_update (controller);

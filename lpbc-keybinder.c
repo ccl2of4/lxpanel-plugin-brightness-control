@@ -14,13 +14,13 @@ lpbc_keybinder_init (void)
 static void
 raise_brightness (const char *keystring, void *user_data)
 {
-  lpbc_brightness_raise ();
+  lpbc_brightness_raise (false);
 }
 
 static void
 lower_brightness (const char *keystring, void *user_data)
 {
-  lpbc_brightness_lower ();
+  lpbc_brightness_lower (false);
 }
 
 gboolean

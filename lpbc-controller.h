@@ -4,11 +4,12 @@
 #include <lxpanel/plugin.h>
 
 typedef struct {
-  guint timeout_id;
   GtkWidget *event_box;
   GtkWidget *label;
   GtkWidget *popup;
   GtkWidget *scale;
+  gboolean  polling_enabled;
+  guint     timeout_id;
 } LPBCController;
 
 LPBCController * lpbc_controller_new (void);

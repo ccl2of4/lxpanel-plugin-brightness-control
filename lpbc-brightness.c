@@ -28,9 +28,16 @@ lpbc_brightness_get (void)
 }
 
 void
-lpbc_brightness_raise (void)
+lpbc_brightness_raise (bool async)
 {
-  FILE *f = popen ("xbacklight -inc 10", "r");
+  char *command;
+  if (async) {
+    command = "xbacklight -inc 7 &";
+  } else {
+    command = "xbacklight -inc 7";
+  }
+
+  FILE *f = popen (command, "r");
   if (NULL == f) {
     return;
   }
@@ -38,9 +45,36 @@ lpbc_brightness_raise (void)
 }
 
 void
-lpbc_brightness_lower (void)
+lpbc_brightness_lower (bool async)
 {
-  FILE *f = popen ("xbacklight -dec 10", "r");
+  char *command;
+  if (async) {
+    command = "xbacklight -dec 6 &";
+  } else {
+    command = "xbacklight -dec 6";
+  }
+
+  FILE *f = popen (command, "r");
+  if (NULL == f) {
+    return;
+  }
+  pclose (f);
+}
+
+void
+lpbc_brightness_set (double brightness, bool async)
+{
+  char brightness_str[30] = {'\0'};
+  char *command;
+  if (async) {
+    command = "xbacklight -set %f &";
+  } else {
+    command = "xbacklight -set %f";
+  }
+
+  snprintf(brightness_str, sizeof(brightness_str), command, brightness);
+
+  FILE *f = popen (brightness_str, "r");
   if (NULL == f) {
     return;
   }
