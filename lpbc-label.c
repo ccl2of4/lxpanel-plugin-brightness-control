@@ -11,9 +11,9 @@ lpbc_label_new (void)
 }
 
 void
-lpbc_label_set_brightness (GtkWidget *label, long brightness)
+lpbc_label_set_brightness (GtkWidget *label, int brightness)
 {
   char brightness_str[10] = {'\0'};
-  snprintf(brightness_str, sizeof(brightness_str), "%ld", brightness);
+  snprintf(brightness_str, sizeof(brightness_str), "%d", brightness);
   gtk_label_set_text (GTK_LABEL (label), brightness_str);
 }

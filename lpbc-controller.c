@@ -1,4 +1,5 @@
 #include <lxpanel/plugin.h>
+#include <math.h>
 
 #include "lpbc-event-box.h"
 #include "lpbc-label.h"
@@ -17,7 +18,7 @@ lpbc_controller_get_quark (void)
 static void
 lpbc_controller_update (LPBCController *controller)
 {
-    long brightness = lpbc_brightness_get ();
+    int brightness = ceil(lpbc_brightness_get ());
     lpbc_label_set_brightness (controller->label, brightness);
     if(controller->scale) {
       gtk_range_set_value (GTK_RANGE(controller->scale), brightness);
@@ -117,16 +118,19 @@ lpbc_controller_get_widget (LPBCController *controller)
   return controller->event_box;
 }
 
-static gboolean
-lpbc_controller_on_scale_change_value (GtkRange     *range,
-                                        GtkScrollType scroll,
-                                        gdouble       value,
+static void
+lpbc_controller_on_scale_value_changed (GtkRange     *range,
                                         gpointer      user_data)
 {
   LPBCController *controller = user_data;
-  lpbc_brightness_set (value, true);
-  lpbc_label_set_brightness (controller->label, value);
-  return FALSE;
+  double brightness = gtk_range_get_value (range);
+
+  if (controller->timeout_id) {
+    return;
+  }
+
+  lpbc_brightness_set (brightness, true);
+  lpbc_label_set_brightness (controller->label, brightness);
 }
 
 static gboolean
@@ -156,7 +160,7 @@ lpbc_controller_create_popup (LPBCController *controller)
   GtkWidget *scale = lpbc_scale_new ();
   controller->popup = popup;
   controller->scale = scale;
-  g_signal_connect (controller->scale, "change-value", G_CALLBACK (lpbc_controller_on_scale_change_value), controller);
+  g_signal_connect (controller->scale, "value-changed", G_CALLBACK (lpbc_controller_on_scale_value_changed), controller);
   g_signal_connect (controller->scale, "button-press-event", G_CALLBACK (lpbc_controller_on_scale_button_press), controller);
   g_signal_connect (controller->scale, "button-release-event", G_CALLBACK (lpbc_controller_on_scale_button_release), controller);
   gtk_container_add (GTK_CONTAINER (popup), scale);

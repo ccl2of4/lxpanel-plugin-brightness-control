@@ -3,7 +3,7 @@
 
 #include "lpbc-brightness.h"
 
-long
+double
 lpbc_brightness_get (void)
 {
   FILE *fp;
@@ -20,7 +20,7 @@ lpbc_brightness_get (void)
     return 0;
   }
 
-  long val = strtol(brightness, NULL, 10);
+  double val = atof(brightness);
 
   pclose (fp);
 

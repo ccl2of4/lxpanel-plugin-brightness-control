@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-long lpbc_brightness_get (void);
+double lpbc_brightness_get (void);
 void lpbc_brightness_raise (bool async);
 void lpbc_brightness_lower (bool async);
 void lpbc_brightness_set (double brightness, bool async);
