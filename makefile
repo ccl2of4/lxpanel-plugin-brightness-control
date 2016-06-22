@@ -1,5 +1,5 @@
 all:
-	gcc -Wall `pkg-config --cflags gtk+-2.0 lxpanel` -shared -fPIC *.c -o lpbc.so `pkg-config --libs lxpanel`
+	gcc -Wall `pkg-config --cflags gtk+-2.0 lxpanel` -shared -fPIC src/*.c -o lpbc.so `pkg-config --libs lxpanel`
 
 clean:
 	rm lpbc.so
